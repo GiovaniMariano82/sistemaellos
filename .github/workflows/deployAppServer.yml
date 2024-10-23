@@ -16,9 +16,6 @@ jobs:
         - name: Baixar o código atualizado
           uses: actions/checkout@v4
 
-        # - name: Entrar no diretório da aplicação e lista os arquivos
-        #   run: cd ./app && ls -lah
-
         - name: Copiar arquivo .env
           run: cd ./app && php -r "file_exists('.env') || copy('.env.example', '.env');"
 
@@ -27,8 +24,15 @@ jobs:
         
         - name: Instalar dependências da aplicação
           run: cd ./app && composer install --no-interaction && composer require league/flysystem-aws-s3-v3 "^3.0" --with-all-dependencies
-          #run: cd ./app && composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-        # - name: Gerar a chave da aplicação
-        #   run: php artisan key:generate
+        - name: Gerar a chave da aplicação
+          run: cd ./app && php artisan key:generate
         
+        - name: "Copiar os arquivos para VPS"
+          uses: appleboy/scp-action@v0.1.7
+          with:
+            host: ${{secrets.SSH_HOST_SERVER2}}
+            username: ${{secrets.SSH_USER_VPS}}
+            password: ${{secrets.SSH_PASSWORD_VPS}}
+            source: "./app"
+            target: "/var/lib/docker/volumes/ellos-filament-data/_data"
