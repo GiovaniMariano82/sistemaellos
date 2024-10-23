@@ -23,7 +23,8 @@ jobs:
           run: cd ./app && php -r "file_exists('.env') || copy('.env.example', '.env');"
         
         - name: Instalar dependências da aplicação
-          run: cd ./app && composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          run: cd ./app && composer install --no-interaction && composer require league/flysystem-aws-s3-v3 "^3.0" --with-all-dependencies
+          #run: cd ./app && composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
         # - name: Gerar a chave da aplicação
         #   run: php artisan key:generate
