@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  web:
+    image: giovanijm/ellos-filament:v1
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        PHP_VERSION: '8.3.12-fpm-bullseye'
+    #volumes:
+    #  - ./app:/var/www/app
+    ports:
+      - "80:80" #http
+      - "443:443" #https
