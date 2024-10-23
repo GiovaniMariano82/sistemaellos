@@ -16,6 +16,9 @@ jobs:
         - name: Baixar o código atualizado
           uses: actions/checkout@v4
 
+        - name: Verifica o diretorio raiz
+          run: pwd && ls -lah
+
         - name: Copiar arquivo .env
           run: php -r "file_exists('.env') || copy('.env.example', '.env');"
         
