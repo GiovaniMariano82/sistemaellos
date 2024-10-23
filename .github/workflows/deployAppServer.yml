@@ -34,5 +34,6 @@ jobs:
             host: ${{secrets.SSH_HOST_SERVER2}}
             username: ${{secrets.SSH_USER_VPS}}
             password: ${{secrets.SSH_PASSWORD_VPS}}
-            source: "./app"
+            source: "./app/*"
             target: "/var/lib/docker/volumes/ellos-filament-data/_data"
+            strip_components: 1
