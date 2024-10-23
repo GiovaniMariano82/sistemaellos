@@ -21,6 +21,9 @@ jobs:
 
         - name: Copiar arquivo .env
           run: cd ./app && php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+        - name: Criar a pasta storage e dar as devidas permissões
+          run: cd ./app && mkdir -p storage/framework/{sessions,views,cache} && chmod -R 775 storage
         
         - name: Instalar dependências da aplicação
           run: cd ./app && composer install --no-interaction && composer require league/flysystem-aws-s3-v3 "^3.0" --with-all-dependencies
