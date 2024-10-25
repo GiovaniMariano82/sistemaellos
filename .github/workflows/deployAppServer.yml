@@ -23,7 +23,7 @@ jobs:
           run: cd ./app && mkdir -p storage/framework/{sessions,views,cache} && chmod -R 775 storage
         
         - name: Instalar dependências da aplicação
-          run: cd ./app && composer install --no-interaction --optimize-autoload --no-dev
+          run: cd ./app && composer install --no-interaction --optimize-autoloader --no-dev
           
         - name: Configurando os arquivos para o cache
           run: cd ./app && php artisan config:cache
