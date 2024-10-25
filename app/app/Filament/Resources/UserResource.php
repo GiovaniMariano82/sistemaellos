@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
@@ -45,20 +46,27 @@ class UserResource extends Resource
                             ->label('Nome Completo')
                             ->required(),
                         TextInput::make('email')
-                            ->label('E-mail do usuário')
+                            ->label('E-mail')
                             ->email()
                             ->required()
-                            ->unique(ignoreRecord: true)
+                            ->unique(column: 'email', ignoreRecord: true)
+                            ->validationMessages([
+                                'unique' => 'O :attribute já está em uso por outro usuário.'
+                            ])
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function(Page $livewire, $state){
+                                if(!is_null($state))
+                                {
+                                    $livewire->validateOnly('data.email');
+                                }
+                            })
                             ->autocomplete(false),
                         Select::make('role')
                             ->label('Função')
                             ->relationship('roles', 'name')
                             ->multiple()
+                            ->preload()
                             ->columnSpanFull(),
-                        // CheckboxList::make('roles')
-                        //     ->label('Função')
-                        //     ->relationship('roles', 'name')
-                        //     ->searchable(),
                         TextInput::make('password')
                             ->label('Senha')
                             ->password()
@@ -161,9 +169,9 @@ class UserResource extends Resource
                 ])->color(Color::Gray),
             ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

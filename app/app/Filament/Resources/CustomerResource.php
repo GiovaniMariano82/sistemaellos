@@ -6,11 +6,13 @@ use App\Filament\Resources\CustomerResource\Pages;
 use App\Filament\Resources\CustomerResource\RelationManagers\ContactsRelationManager;
 use App\Filament\Resources\CustomerResource\Widgets\CustomersStatsOverview;
 use App\Models\{Customer,Status,TypeDocument,TypeGender};
+use Closure;
 use DateTime;
 use Filament\Forms;
 use Filament\Forms\Components\{DatePicker, DateTimePicker, RichEditor, Section, Select, TextInput};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Support\Colors\Color;
 use Filament\Tables;
@@ -18,7 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Leandrocfe\FilamentPtbrFormFields\Cep;
+use Leandrocfe\FilamentPtbrFormFields\{ Cep, Document};
 
 class CustomerResource extends Resource
 {
@@ -64,9 +66,9 @@ class CustomerResource extends Resource
                             ->required()
                             ->markAsRequired()
                             ->maxLength(100)
-                            ->live()
+                            ->live(onBlur: true)
                             ->afterStateUpdated(function (string $operation, $state, Forms\Set $set) {
-                                if ($operation !== 'create') {return;}
+                                if ($operation !== 'create' || !mb_strstr( $state, ' ', true )) {return;}
                                 $set('socialName', mb_strstr( $state, ' ', true ));
                             })
                             ->columnSpan(2),
@@ -81,26 +83,43 @@ class CustomerResource extends Resource
                             ->id('type_document_id')
                             ->label(__('customer.field.typeDocument'))
                             ->options(TypeDocument::all()->pluck('name', 'id'))
-                            ->default(1)
                             ->required()
                             ->markAsRequired()
-                            ->columnSpan(1)
-                            ->live(),
-                        TextInput::make('documentNumber')
+                            ->columnSpan(1),
+                        Document::make('documentNumber')
                             ->label(__('customer.field.documentNumber'))
-                            ->required()
+                            ->dynamic()
+                            ->validation(true)
                             ->markAsRequired()
                             ->helperText(__('customer.helperText.documentNumber'))
-                            ->maxLength(50)
-                            ->mask(function (Get $get): string {
-                                $valor = $get('type_document_id');
-                                return match ($valor) {
-                                    '1' => '999.999.999-99',
-                                    '2' => '99.999.999/9999-99',
-                                    default => '',
-                                };
+                            ->columnSpan(1)
+                            ->rules([
+                                'required',
+                                fn(Get $get, string $operation): Closure => function(string $attribute, $value, callable $fail) use ($get, $operation) {
+                                    if($operation === "create") {
+                                        $existsDB = Customer::where('documentNumber', preg_replace("/[^0-9]/", "", $value))->count();
+
+                                        if ($existsDB > 0) {
+                                            $fail(__('customer.validation.uniqueDocumentNumber'));
+                                        }
+                                    }
+                                    else {
+                                        $existsDB = Customer::where('documentNumber', preg_replace("/[^0-9]/", "", $value))
+                                            ->where('id', '<>', $get('id'))
+                                            ->count();
+                                        if ($existsDB > 0) {
+                                            $fail(__('customer.validation.uniqueDocumentNumber'));
+                                        }
+                                    }
+                                },
+                            ])
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function(Page $livewire, $state){
+                                if(!is_null($state)) {
+                                    $livewire->validateOnly('data.documentNumber');
+                                }
                             })
-                            ->columnSpan(1),
+                        ,
                         DatePicker::make('birthDate')
                             ->label(__('customer.field.birthDate'))
                             ->format('d/m/Y')
@@ -144,7 +163,6 @@ class CustomerResource extends Resource
                     ->schema([
                         Cep::make('postalCode')
                             ->label(__('customer.field.postalCode'))
-                            ->markAsRequired()
                             ->columnSpan(1)
                             ->viaCep(
                                 mode: 'suffix',

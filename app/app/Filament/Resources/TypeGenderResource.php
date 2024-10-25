@@ -21,7 +21,7 @@ class TypeGenderResource extends Resource
 {
     protected static ?string $model = TypeGender::class;
 
-    protected static ?string $navigationIcon = 'healthicons-n-sexual-reproductive-health';
+    protected static ?string $navigationIcon = 'mdi-gender-male-female';
     protected static ?string $navigationGroup = 'Cadastros';
     protected static ?int $navigationSort = 46;
     protected static ?string $navigationLabel = 'Tipo Gênero';

@@ -23,10 +23,12 @@ jobs:
           run: cd ./app && mkdir -p storage/framework/{sessions,views,cache} && chmod -R 775 storage
         
         - name: Instalar dependências da aplicação
-          run: cd ./app && composer install --no-interaction && composer require predis/predis && composer require league/flysystem-aws-s3-v3 "^3.0" --with-all-dependencies
+          run: cd ./app && composer install --no-interaction --optimize-autoload --no-dev &&
+            php artisan config:cache &&
+            php artisan route:cache &&            
 
-        - name: Gerar a chave da aplicação
-          run: cd ./app && php artisan key:generate
+        # - name: Gerar a chave da aplicação
+        #   run: cd ./app && php artisan key:generate
         
         - name: "Copiar os arquivos para VPS"
           uses: appleboy/scp-action@v0.1.7
