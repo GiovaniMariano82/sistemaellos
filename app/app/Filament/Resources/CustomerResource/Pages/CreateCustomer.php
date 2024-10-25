@@ -14,7 +14,6 @@ class CreateCustomer extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-
         $data['origin'] = 'WEB';
         $data['birthDate'] = Carbon::createFromFormat('d/m/Y', $data['birthDate'])->format('Y-m-d');
         return $data;
