@@ -16,23 +16,23 @@ jobs:
         - name: Baixar o código atualizado
           uses: actions/checkout@v4
 
-        - name: Copiar arquivo .env
-          run: cd ./app && php -r "file_exists('.env') || copy('.env.example', '.env');"
+        #- name: Copiar arquivo .env
+        #  run: cd ./app && php -r "file_exists('.env') || copy('.env.example', '.env');"
 
         - name: Criar a pasta storage e dar as devidas permissões
           run: cd ./app && mkdir -p storage/framework/{sessions,views,cache} && chmod -R 775 storage
         
         - name: Instalar dependências da aplicação
-          run: cd ./app && composer install --no-interaction --optimize-autoloader --no-dev
+          run: cd ./app && composer install --no-interaction --no-dev
           
-        - name: Configurando os arquivos para o cache
-          run: cd ./app && php artisan config:cache
+        #- name: Configurando os arquivos para o cache
+        #  run: cd ./app && php artisan config:cache
 
-        - name: Configurando o cache das rotas
-          run: cd ./app && php artisan route:cache       
+        #- name: Configurando o cache das rotas
+        #  run: cd ./app && php artisan route:cache       
 
-        - name: Gerar a chave da aplicação
-          run: cd ./app && php artisan key:generate
+        #- name: Gerar a chave da aplicação
+        #  run: cd ./app && php artisan key:generate
         
         - name: "Copiar os arquivos para VPS"
           uses: appleboy/scp-action@v0.1.7
